@@ -81,6 +81,7 @@ android {
 }
 
 dependencies {
+    implementation project(':native-libs')
     testImplementation("junit:junit:4.13.2")
 
     // AndroidX Test - JUnit Runner
