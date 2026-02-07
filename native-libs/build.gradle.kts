@@ -1,9 +1,12 @@
+import my.app.buildsrc.BuildLibs
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
 }
+
+val outputPath: String = "build/libs_output"
 
 android {
     namespace = "my.app.native_libs"
@@ -16,7 +19,11 @@ android {
         consumerProguardFiles("consumer-rules.pro")
         externalNativeBuild {
             cmake {
-                arguments += listOf("-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
+                arguments += listOf(
+                    "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
+                    "-DLIBRARY_SEARCH_PATH=${outputPath}/lib",
+                    "-DCMAKE_ANDROID_API_MIN=${android.defaultConfig.minSdk}"
+                )
                 cppFlags("-std=c++17")
             }
         }
@@ -37,12 +44,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlin {
         compilerOptions {
-            jvmTarget = JvmTarget.fromTarget("11")
+            jvmTarget = JvmTarget.fromTarget("21")
         }
     }
 }
