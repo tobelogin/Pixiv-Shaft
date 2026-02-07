@@ -86,7 +86,9 @@ set_target_properties(
 # used in the AndroidManifest.xml file.
 add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
-        av-helper.c)
+        av-helper.c
+        frame_queue.c
+)
 
 link_directories(${LIBRARY_SEARCH_PATH})
 

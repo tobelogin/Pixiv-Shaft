@@ -6,6 +6,10 @@ class FormatConverter {
         init {
             System.loadLibrary("native_libs")
         }
-        external fun list2webp(listPath: String, webpPath: String): Int
+
+        fun list2webp(listPath: String, webpPath: String): Int {
+            return nativeList2Webp(listPath.toByteArray(Charsets.UTF_8), webpPath.toByteArray(Charsets.UTF_8))
+        }
+        external fun nativeList2Webp(listPath: ByteArray, webpPath: ByteArray): Int
     }
 }

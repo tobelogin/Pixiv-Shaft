@@ -74,7 +74,7 @@ class DownloadGifZipTask(
         }
 
         val ret = my.app.native_libs.FormatConverter.list2webp(listFile.absolutePath, webpFile.absolutePath)
-        if (ret ==0) {
+        if (ret == 0) {
             val key = KEY + illustId
             _prefStore.putBoolean(key, true)
 
