@@ -20,6 +20,11 @@ execute_process(
         RESULT_VARIABLE LIBWEBP_BUILD_RESULT
 )
 
+include_directories(
+        ${SHELL_OUTPUT_DIR}/include/libwebp
+        ${SHELL_OUTPUT_DIR}/include/libav
+)
+
 if (NOT (LIBWEBP_BUILD_RESULT EQUAL 0))
     message(FATAL_ERROR "Unable to build libwebp.")
 endif ()

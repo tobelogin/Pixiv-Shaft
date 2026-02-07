@@ -73,6 +73,11 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 cd "$LIBWEBP_OUTPUT_DIR/install/lib" && llvm-strip *.so && cp libsharpyuv.so libwebp.so libwebpmux.so $OUTPUT_DIR/libs
+# 将头文件输出到输出根目录以供后续使用
+if [ ! -e "$OUTPUT_DIR/include/libwebp" ]; then
+  mkdir -p $OUTPUT_DIR/include/libwebp
+  cp -r $LIBWEBP_OUTPUT_DIR/install/include/* $OUTPUT_DIR/include/libwebp
+fi
 
 # 构建 libav
 check_dir_available "$LIBAV_OUTPUT_DIR/build"
@@ -96,3 +101,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 cd "$LIBAV_OUTPUT_DIR/install/lib" && cp *.so $OUTPUT_DIR/libs
+if [ ! -e "$OUTPUT_DIR/include/libav" ]; then
+  mkdir -p $OUTPUT_DIR/include/libav
+  cp -r $LIBAV_OUTPUT_DIR/install/include/* $OUTPUT_DIR/include/libav
+fi
