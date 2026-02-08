@@ -58,6 +58,11 @@ if [ -d "configure" ]; then
   exit 1
 fi
 
+# libwebp 的自动配置脚本有问题，需要打补丁
+if patch --dry-run -f -i $SCRIPT_DIR/fix_configure_error.patch; then
+  patch -f -i $SCRIPT_DIR/fix_configure_error.patch
+fi
+
 # 构建 libwebp
 check_dir_available "$LIBWEBP_OUTPUT_DIR/build"
 mkdir -p "$LIBWEBP_OUTPUT_DIR/build" && cd "$LIBWEBP_OUTPUT_DIR/build"
