@@ -85,13 +85,14 @@ if [ ! -e "$OUTPUT_DIR/include/libwebp" ]; then
 fi
 
 # 构建 libav
+# 链接器之所以使用 clang 是因为 ffmpeg 的配置脚本会把链接器当编译器用……
 check_dir_available "$LIBAV_OUTPUT_DIR/build"
 mkdir -p "$LIBAV_OUTPUT_DIR/build" && cd "$LIBAV_OUTPUT_DIR/build"
 $LIBAV_SRC_DIR/configure --prefix=$LIBAV_OUTPUT_DIR/install \
   --enable-cross-compile --target-os=android --arch=$cross_arch --sysroot=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
-  --cc="clang -target $toolchain_target" --extra-cflags="-I$LIBWEBP_OUTPUT_DIR/install/include -Wl,-z,max-page-size=16384" \
-  --cxx="clang++ -target $toolchain_target" --extra-cxxflags="-I$LIBWEBP_OUTPUT_DIR/install/include -Wl,-z,max-page-size=16384" \
-  --ld=ld --extra-ldflags="-L$OUTPUT_DIR/libs" --extra-libs="-lsharpyuv -lwebpmux -lwebp" \
+  --cc="clang -target $toolchain_target" --extra-cflags="-I$LIBWEBP_OUTPUT_DIR/install/include" \
+  --cxx="clang++ -target $toolchain_target" --extra-cxxflags="-I$LIBWEBP_OUTPUT_DIR/install/include" \
+  --ld="clang -target $toolchain_target" --extra-ldflags="-L$OUTPUT_DIR/libs -Wl,-z,max-page-size=16384" --extra-libs="-lsharpyuv -lwebpmux -lwebp" \
   --nm=llvm-nm --ar=llvm-ar --pkg-config=pkg-config --strip=llvm-strip \
   --enable-shared --disable-static --enable-small --disable-programs --disable-doc --disable-avdevice --disable-swresample --disable-avfilter --disable-pthreads --disable-network \
   --disable-everything --enable-encoder=libwebp_anim --enable-decoder=mjpeg --enable-muxer=image2  --enable-demuxer=concat --enable-demuxer=image2 --enable-protocol=file \
