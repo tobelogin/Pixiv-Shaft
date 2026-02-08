@@ -2,6 +2,7 @@
 #include <android/log.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <libavformat/avformat.h>
 #include <libavutil/dict.h>
 #include <libavutil/opt.h>
@@ -9,20 +10,6 @@
 #include <libswscale/swscale.h>
 
 #include "frame_queue.h"
-
-// 将 image2 封装器的 update 选项设置为 1 来避免警告
-void set_update_flag(void* priv_data, const AVOption *options)
-{
-    for (; options->name != NULL;++options)
-    {
-        if (strcmp(options->name, "update") == 0)
-        {
-            priv_data+=options->offset;
-            *(int*)priv_data = 1;
-            break;
-        }
-    }
-}
 
 // TODO 保留原队列中的内容，或者直接对原队列中的帧进行操作
 int color_converse_batch(FrameQueue *origin, FrameQueue *dst, enum AVPixelFormat dst_fmt)
