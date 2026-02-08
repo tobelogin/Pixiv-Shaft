@@ -89,9 +89,9 @@ check_dir_available "$LIBAV_OUTPUT_DIR/build"
 mkdir -p "$LIBAV_OUTPUT_DIR/build" && cd "$LIBAV_OUTPUT_DIR/build"
 $LIBAV_SRC_DIR/configure --prefix=$LIBAV_OUTPUT_DIR/install \
   --enable-cross-compile --target-os=android --arch=$cross_arch --sysroot=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot \
-  --cc="clang -target $toolchain_target" --extra-cflags="-I$LIBWEBP_OUTPUT_DIR/install/include" \
-  --cxx="clang++ -target $toolchain_target" --extra-cxxflags="-I$LIBWEBP_OUTPUT_DIR/install/include" \
-  --ld=ld --extra-ldflags="-L$OUTPUT_DIR/libs -Wl,-z,max-page-size=16384" --extra-libs="-lsharpyuv -lwebpmux -lwebp" \
+  --cc="clang -target $toolchain_target" --extra-cflags="-I$LIBWEBP_OUTPUT_DIR/install/include -Wl,-z,max-page-size=16384" \
+  --cxx="clang++ -target $toolchain_target" --extra-cxxflags="-I$LIBWEBP_OUTPUT_DIR/install/include -Wl,-z,max-page-size=16384" \
+  --ld=ld --extra-ldflags="-L$OUTPUT_DIR/libs" --extra-libs="-lsharpyuv -lwebpmux -lwebp" \
   --nm=llvm-nm --ar=llvm-ar --pkg-config=pkg-config --strip=llvm-strip \
   --enable-shared --disable-static --enable-small --disable-programs --disable-doc --disable-avdevice --disable-swresample --disable-avfilter --disable-pthreads --disable-network \
   --disable-everything --enable-encoder=libwebp_anim --enable-decoder=mjpeg --enable-muxer=image2  --enable-demuxer=concat --enable-demuxer=image2 --enable-protocol=file \
@@ -103,7 +103,7 @@ $LIBAV_SRC_DIR/configure --prefix=$LIBAV_OUTPUT_DIR/install \
   --disable-inline-asm --disable-x86asm --disable-mipsdsp --disable-mipsdspr2 --disable-msa --disable-mipsfpu --disable-mmi --disable-lsx --disable-lasx --disable-rvv
 make && make install
 if [ $? -ne 0 ]; then
-  echo Failed to build libwebp.
+  echo Failed to build libav.
   exit 1
 fi
 cd "$LIBAV_OUTPUT_DIR/install/lib" && cp *.so $OUTPUT_DIR/libs

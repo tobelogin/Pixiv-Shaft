@@ -26,7 +26,7 @@ include_directories(
 )
 
 if (NOT (LIBWEBP_BUILD_RESULT EQUAL 0))
-    message(FATAL_ERROR "Unable to build libwebp.")
+    message(FATAL_ERROR "Unable to build libwebp or libav.")
 endif ()
 
 
