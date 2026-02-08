@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.22.1)
 # Since this is the top level CMakeLists.txt, the project name is also accessible
 # with ${CMAKE_PROJECT_NAME} (both CMake variables are in-sync within the top level
 # build script scope).
-project("native_libs")
+project("av-helper")
 
 set(SHELL_OUTPUT_DIR "/tmp/shaft_build")
 
