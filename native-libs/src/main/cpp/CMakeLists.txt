@@ -11,92 +11,52 @@ cmake_minimum_required(VERSION 3.22.1)
 # build script scope).
 project("av-helper")
 
-set(SHELL_OUTPUT_DIR "/tmp/shaft_build")
+include(ExternalProject)
 
-# 工作目录好像是由 Gradle 指定的，默认是模块根目录
-execute_process(
-        COMMAND bash -c "TARGET_ARCH=${CMAKE_ANDROID_ARCH} TARGET_API_LEVEL=${CMAKE_ANDROID_API_MIN} OUTPUT_DIR=${SHELL_OUTPUT_DIR} NDK_HOME=${CMAKE_ANDROID_NDK} ./src/main/cpp/build_modules.sh"
-        OUTPUT_FILE /tmp/shell_${CMAKE_ANDROID_ARCH_ABI}.log
-        RESULT_VARIABLE LIBWEBP_BUILD_RESULT
+set(externalLibraries_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+find_package(externalLibraries CONFIG REQUIRED)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/libwebp/include ${CMAKE_CURRENT_BINARY_DIR}/libav/include)
+
+ExternalProject_Add(
+        main
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/av-helper
+        CMAKE_ARGS
+            -S<SOURCE_DIR>
+            -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=${CMAKE_EXPORT_COMPILE_COMMANDS}
+            -DCMAKE_SYSTEM_VERSION=${CMAKE_SYSTEM_VERSION}
+            -DANDROID_PLATFORM=${ANDROID_PLATFORM}
+            -DANDROID_ABI=${ANDROID_ABI}
+            -DCMAKE_ANDROID_ARCH_ABI=${CMAKE_ANDROID_ARCH_ABI}
+            -DANDROID_NDK=${ANDROID_NDK}
+            -DCMAKE_ANDROID_NDK=${CMAKE_ANDROID_NDK}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            -DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
+            -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+            -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+            -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -B${CMAKE_CURRENT_BINARY_DIR}
+            -GNinja
+        DEPENDS externalLibraries
 )
 
-include_directories(
-        ${SHELL_OUTPUT_DIR}/include/libwebp
-        ${SHELL_OUTPUT_DIR}/include/libav
-)
+#add_custom_target(
+#        ${CMAKE_PROJECT_NAME}
+#        COMMAND exit 1
+##        DEPENDS main
+#)
 
-if (NOT (LIBWEBP_BUILD_RESULT EQUAL 0))
-    message(FATAL_ERROR "Unable to build libwebp or libav.")
-endif ()
-
-
-add_library(webp SHARED IMPORTED GLOBAL)
-set_target_properties(
-        webp
-        PROPERTIES IMPORTED_LOCATION "${SHELL_OUTPUT_DIR}/libs/libwebp.so"
-)
-
-add_library(webpmux SHARED IMPORTED GLOBAL)
-set_target_properties(
-        webpmux
-        PROPERTIES IMPORTED_LOCATION "${SHELL_OUTPUT_DIR}/libs/libwebpmux.so"
-)
-
-add_library(sharpyuv SHARED IMPORTED GLOBAL)
-set_target_properties(
-        sharpyuv
-        PROPERTIES IMPORTED_LOCATION "${SHELL_OUTPUT_DIR}/libs/libsharpyuv.so"
-)
-
-add_library(avformat SHARED IMPORTED GLOBAL)
-set_target_properties(
-        avformat
-        PROPERTIES IMPORTED_LOCATION "${SHELL_OUTPUT_DIR}/libs/libavformat.so"
-)
-
-add_library(avcodec SHARED IMPORTED GLOBAL)
-set_target_properties(
-        avcodec
-        PROPERTIES IMPORTED_LOCATION "${SHELL_OUTPUT_DIR}/libs/libavcodec.so"
-)
-
-add_library(avutil SHARED IMPORTED GLOBAL)
-set_target_properties(
-        avutil
-        PROPERTIES IMPORTED_LOCATION "${SHELL_OUTPUT_DIR}/libs/libavutil.so"
-)
-
-add_library(swscale SHARED IMPORTED GLOBAL)
-set_target_properties(
-        swscale
-        PROPERTIES IMPORTED_LOCATION "${SHELL_OUTPUT_DIR}/libs/libswscale.so"
-)
-# Creates and names a library, sets it as either STATIC
-# or SHARED, and provides the relative paths to its source code.
-# You can define multiple libraries, and CMake builds them for you.
-# Gradle automatically packages shared libraries with your APK.
-#
-# In this top level CMakeLists.txt, ${CMAKE_PROJECT_NAME} is used to define
-# the target library name; in the sub-module's CMakeLists.txt, ${PROJECT_NAME}
-# is preferred for the same purpose.
-#
-# In order to load a library into your app from Java/Kotlin, you must call
-# System.loadLibrary() and pass the name of the library defined here;
-# for GameActivity/NativeActivity derived applications, the same library name must be
-# used in the AndroidManifest.xml file.
 add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
-        av-helper.c
-        frame_queue.c
+        av-helper/av-helper.c
+        av-helper/frame_queue.c
 )
 
-link_directories(${LIBRARY_SEARCH_PATH})
-
-# Specifies libraries CMake should link to your target library. You
-# can link libraries from various origins, such as libraries defined in this
-# build script, prebuilt third-party libraries, or Android system libraries.
-target_link_libraries(${CMAKE_PROJECT_NAME}
-        # List libraries link to the target library
+add_dependencies(${CMAKE_PROJECT_NAME} externalLibraries)
+target_link_libraries(
+        ${CMAKE_PROJECT_NAME}
         android
         log
         sharpyuv
@@ -106,5 +66,5 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
         avcodec
         avutil
         swscale
+        -L${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
 )
-

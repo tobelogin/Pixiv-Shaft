@@ -20,8 +20,6 @@ android {
             cmake {
                 arguments += listOf(
                     "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
-                    "-DLIBRARY_SEARCH_PATH=${outputPath}/lib",
-                    "-DCMAKE_ANDROID_API_MIN=${android.defaultConfig.minSdk}"
                 )
                 cppFlags("-std=c++17")
             }
