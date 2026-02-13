@@ -346,7 +346,7 @@ Java_my_app_native_1libs_FormatConverter_00024Companion_nativeList2Webp(JNIEnv *
     webp_path_utf[len]=0;
     (*env)->ReleaseByteArrayElements(env, webp_path, tmp, JNI_ABORT);
 
-    __android_log_print(ANDROID_LOG_DEBUG, "nativeList2webp", "List path is %s, webp path is %s.\n", list_path_utf, webp_path_utf);
+    __android_log_print(ANDROID_LOG_DEBUG, "nativeList2webp", "List path is %s, webp path is %s\n", list_path_utf, webp_path_utf);
     int ret = list2webp((const char*)list_path_utf, (const char*)webp_path_utf);
     free(list_path_utf);
     free(webp_path_utf);
