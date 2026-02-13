@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 3.22.1)
 
+string(REGEX MATCH "[0-9]*$" MY_ANDROID_VERSION ${ANDROID_PLATFORM})
+
 if (${CMAKE_ANDROID_ARCH} STREQUAL "arm64")
-    set(TOOLCHAIN_TARGET "aarch64-linux-android${CMAKE_ANDROID_API}")
+    set(TOOLCHAIN_TARGET "aarch64-linux-android${MY_ANDROID_VERSION}")
 elseif (${CMAKE_ANDROID_ARCH} STREQUAL "arm")
-    set(TOOLCHAIN_TARGET "armv7a-linux-android${CMAKE_ANDROID_API}")
+    set(TOOLCHAIN_TARGET "armv7a-linux-android${MY_ANDROID_VERSION}")
 elseif (${CMAKE_ANDROID_ARCH} STREQUAL "x86")
-    set(TOOLCHAIN_TARGET "i686-linux-android${CMAKE_ANDROID_API}")
+    set(TOOLCHAIN_TARGET "i686-linux-android${MY_ANDROID_VERSION}")
 elseif (${CMAKE_ANDROID_ARCH} STREQUAL "x86_64")
-    set(TOOLCHAIN_TARGET "x86_64-linux-android${CMAKE_ANDROID_API}")
+    set(TOOLCHAIN_TARGET "x86_64-linux-android${MY_ANDROID_VERSION}")
 else ()
     message(FATAL_ERROR "Unknown Android architecture: ${CMAKE_ANDROID_ARCH}")
 endif ()
@@ -29,11 +31,12 @@ ExternalProject_Add(
             --host=${TOOLCHAIN_TARGET} --with-sysroot=${CMAKE_ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
         BUILD_COMMAND env PATH=${CMAKE_ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin:/usr/bin:/bin make
         INSTALL_COMMAND env PATH=${CMAKE_ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin:/usr/bin:/bin make install
+        COMMAND cd <INSTALL_DIR>/lib && ${CMAKE_ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip libsharpyuv.so libwebpmux.so libwebp.so
         COMMAND cd <INSTALL_DIR>/lib && cp libsharpyuv.so libwebpmux.so libwebp.so ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
 )
 
-#ExternalProject_Get_Property(build_libwebp INSTALL_DIR)
-#set(LIBWEBP_INSTALL_DIR ${INSTALL_DIR})
+ExternalProject_Get_Property(build_libwebp INSTALL_DIR)
+set(LIBWEBP_INSTALL_DIR ${INSTALL_DIR})
 
 # ffmpeg 的配置脚本假设链接器是CC
 ExternalProject_Add(
@@ -44,7 +47,7 @@ ExternalProject_Add(
             --prefix=<INSTALL_DIR> --enable-cross-compile --target-os=android --arch=${CMAKE_ANDROID_ARCH} --sysroot=${CMAKE_ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot
             "--cc=clang -target ${TOOLCHAIN_TARGET}" "--extra-cflags=-I${LIBWEBP_INSTALL_DIR}/include"
             "--cxx=clang++ -target ${TOOLCHAIN_TARGET}" "--extra-cxxflags=-I${LIBWEBP_INSTALL_DIR}/include"
-            "--ld=clang -target ${TOOLCHAIN_TARGET}" "--extra-ldflags=-L${LIBWEBP_INSTALL_DIR}/libs -Wl,-z,max-page-size=16384"
+            "--ld=clang -target ${TOOLCHAIN_TARGET}" "--extra-ldflags=-L${LIBWEBP_INSTALL_DIR}/lib -Wl,-z,max-page-size=16384"
             --nm=llvm-nm --ar=llvm-ar --pkg-config=pkg-config --strip=llvm-strip
             --enable-shared --disable-static --enable-small --disable-programs --disable-doc --disable-avdevice --disable-swresample --disable-avfilter --disable-pthreads --disable-network
             --disable-everything --enable-encoder=libwebp_anim --enable-decoder=mjpeg --enable-muxer=image2  --enable-demuxer=concat --enable-demuxer=image2 --enable-protocol=file
