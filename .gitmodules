@@ -1,6 +1,0 @@
-[submodule "native-libs/src/main/cpp/third_party/libwebp"]
-	path = native-libs/src/main/cpp/third_party/libwebp
-	url = https://github.com/webmproject/libwebp.git
-[submodule "native-libs/src/main/cpp/third_party/libav"]
-	path = native-libs/src/main/cpp/third_party/libav
-	url = https://github.com/FFmpeg/FFmpeg.git
