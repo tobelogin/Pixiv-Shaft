@@ -3,9 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    `maven-publish`
 }
-
-val outputPath: String = "build/libs_output"
 
 android {
     namespace = "io.github.tobelogin"
@@ -24,15 +23,29 @@ android {
                 cppFlags("-std=c++17")
             }
         }
+
+        aarMetadata {
+            minCompileSdk = android.defaultConfig.minSdk
+        }
+
+        publishing {
+            singleVariant("release") {
+                withSourcesJar()
+            }
+        }
     }
 
     buildTypes {
+        debug {
+            isMinifyEnabled = false // 为 true 时编译器认为一个类没有被使用就会把它优化掉
+        }
+
         release {
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            isMinifyEnabled = false
+//            proguardFiles(
+//                getDefaultProguardFile("proguard-android-optimize.txt"),
+//                "proguard-rules.pro"
+//            )
         }
     }
     externalNativeBuild {
@@ -47,6 +60,50 @@ android {
     kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.fromTarget("21")
+        }
+    }
+}
+
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = "io.github.tobelogin"
+            artifactId = "native-list2webp"
+            version = "0.1"
+
+            pom {
+                name = "native-list2webp"
+                description = "Native way to convert list to webp for Android"
+                url = "https://github.com/tobelogin/native-list2webp"
+                licenses {
+                    license {
+                        name = "LGPL version 2.1 or later"
+                        url = "https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "zjab"
+                        name = "zjab"
+                        email = "108188072+tobelogin@users.noreply.github.com"
+                    }
+                }
+                scm {
+                    url = "https://github.com/tobelogin"
+                }
+            }
+
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "buildRepo"
+            val releasesRepoUrl = layout.buildDirectory.dir("repos/releases")
+            val snapshotsRepoUrl = layout.buildDirectory.dir("repos/snapshots")
+            url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
         }
     }
 }
