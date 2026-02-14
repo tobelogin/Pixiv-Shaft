@@ -316,7 +316,7 @@ int list2webp(const char *list_path, const char *out_img)
 }
 
 JNIEXPORT jint JNICALL
-Java_my_app_native_1libs_FormatConverter_00024Companion_nativeList2Webp(JNIEnv *env, jobject thiz,
+Java_io_github_tobelogin_FormatConverter_00024Companion_nativeList2Webp(JNIEnv *env, jobject thiz,
                                                                         jbyteArray list_path,
                                                                         jbyteArray webp_path)
 {

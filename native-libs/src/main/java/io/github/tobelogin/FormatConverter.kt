@@ -1,4 +1,4 @@
-package my.app.native_libs
+package io.github.tobelogin
 
 class FormatConverter {
     companion object {

@@ -8,7 +8,7 @@ plugins {
 val outputPath: String = "build/libs_output"
 
 android {
-    namespace = "my.app.native_libs"
+    namespace = "io.github.tobelogin"
     compileSdk = 36
 
     defaultConfig {
